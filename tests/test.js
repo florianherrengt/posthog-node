@@ -75,7 +75,7 @@ test.before.cb((t) => {
         })
         .post('/decide', (req, res) => {
             return res.status(200).json({
-                featureFlags: ['enabled-flag'],
+                featureFlags: { "multivariate-feature": "variant-1", "enabled-flag": true }
             })
         })
         .listen(port, t.end)
@@ -90,10 +90,10 @@ test.afterEach(() => {
 function callsDecide(expectedData) {
     const config = {
         method: 'POST',
-        url: 'http://localhost:6042/decide/',
+        url: 'http://localhost:6042/decide/?v=2',
         headers: {
             'Content-Type': 'application/json',
-            'user-agent': 'posthog-node/1.2.0',
+            'user-agent': 'posthog-node/1.3.0',
         },
     }
     if (expectedData) {
@@ -566,6 +566,15 @@ test.serial('feature flags - complex flags', async (t) => {
     t.is(expectedDisabledFlag, false)
     t.is(callsDecide({ groups: {}, distinct_id: 'some id', token: 'key' }), true)
 
+    client.shutdown()
+})
+
+test.serial('feature flags - multivariate', async (t) => {
+    const client = createClient({ personalApiKey: 'my very secret key' })
+    const expectedMultivariateFlag = await client.isFeatureEnabled('multivariate-feature', 'some id')
+    t.is(callsDecide({ groups: {}, distinct_id: 'some id', token: 'key' }), true)
+
+    t.is(expectedMultivariateFlag, 'variant-1')
     client.shutdown()
 })
 

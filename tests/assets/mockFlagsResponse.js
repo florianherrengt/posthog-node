@@ -54,6 +54,23 @@ const mockSimpleFlagResponse = {
             "is_simple_flag": false,
             "rollout_percentage": null
         },
+        {
+            "id": 722,
+            "name": "",
+            "key": "multivariate-feature",
+            "filters": {
+                "groups": [
+                    {
+                        "properties": [],
+                        "rollout_percentage": null
+                    }
+                ]
+            },
+            "deleted": false,
+            "active": true,
+            "is_simple_flag": false,
+            "rollout_percentage": null
+        },
     ]
 }
 

@@ -61,8 +61,8 @@ class FeatureFlagsPoller {
                 rolloutPercentage: featureFlag.rolloutPercentage,
             })
         } else {
-            const res = await this._request({ path: 'decide', method: 'POST', data: { groups, distinct_id: distinctId } })
-            isFlagEnabledResponse = res.data.featureFlags.indexOf(key) >= 0
+            const res = await this._request({ path: 'decide/?v=2', method: 'POST', data: { groups, distinct_id: distinctId } })
+            isFlagEnabledResponse = res.data.featureFlags[key] || false
         }
 
         this.featureFlagCalledCallback(key, distinctId, isFlagEnabledResponse)
