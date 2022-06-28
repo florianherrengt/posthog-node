@@ -116,15 +116,15 @@ class FeatureFlagsPoller {
     }
 
     /* istanbul ignore next */
-    async _request({ path, method = 'GET', usePersonalApiKey = false, data = {} }) {
-        let url = `${this.host}/${path}/`
+    async _request({ path, method = 'GET', usePersonalApiKey = false, data = {}, }) {
+        let url = `${this.host}/${path}`
         let headers = {
             'Content-Type': 'application/json',
         }
 
         if (usePersonalApiKey) {
             headers = { ...headers, Authorization: `Bearer ${this.personalApiKey}` }
-            url = url + `?token=${this.projectApiKey}`
+            url = url + `/?token=${this.projectApiKey}`
         } else {
             data = { ...data, token: this.projectApiKey }
         }
