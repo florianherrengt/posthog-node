@@ -574,6 +574,15 @@ test.serial('feature flags - multivariate', async (t) => {
     const expectedMultivariateFlag = await client.isFeatureEnabled('multivariate-feature', 'some id')
     t.is(callsDecide({ groups: {}, distinct_id: 'some id', token: 'key' }), true)
 
+    t.is(expectedMultivariateFlag, true)
+    client.shutdown()
+})
+
+test.serial('feature flags - get feature flag', async (t) => {
+    const client = createClient({ personalApiKey: 'my very secret key' })
+    const expectedMultivariateFlag = await client.getFeatureFlag('multivariate-feature', 'some id')
+    t.is(callsDecide({ groups: {}, distinct_id: 'some id', token: 'key' }), true)
+
     t.is(expectedMultivariateFlag, 'variant-1')
     client.shutdown()
 })

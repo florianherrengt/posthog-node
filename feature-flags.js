@@ -61,12 +61,22 @@ class FeatureFlagsPoller {
                 rolloutPercentage: featureFlag.rolloutPercentage,
             })
         } else {
-            const res = await this._request({ path: 'decide/?v=2', method: 'POST', data: { groups, distinct_id: distinctId } })
-            isFlagEnabledResponse = res.data.featureFlags[key] || false
+            const featureVariants = await this.getFeatureVariants(distinctId)
+            isFlagEnabledResponse = !!featureVariants[key] || defaultResult
         }
 
         this.featureFlagCalledCallback(key, distinctId, isFlagEnabledResponse)
         return isFlagEnabledResponse
+    }
+
+    async getFeatureVariants(distinctId, groups = {}) {
+        const res = await this._request({ path: 'decide/?v=2', method: 'POST', data: { groups, distinct_id: distinctId } })
+        return res.data.featureFlags
+    }
+
+    async getFeatureFlag(key, distinctId, groups = {}) {
+        const featureVariants = await this.getFeatureVariants(distinctId, groups)
+        return featureVariants[key]
     }
 
     async loadFeatureFlags(forceReload = false) {
