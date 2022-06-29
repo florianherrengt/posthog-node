@@ -61,7 +61,7 @@ class FeatureFlagsPoller {
                 rolloutPercentage: featureFlag.rolloutPercentage,
             })
         } else {
-            const featureVariants = await this.getFeatureVariants(distinctId)
+            const featureVariants = await this.getFeatureVariants(distinctId, groups)
             isFlagEnabledResponse = !!featureVariants[key] || defaultResult
         }
 
