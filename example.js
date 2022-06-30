@@ -1,20 +1,27 @@
+// npm install posthog-node --save
+// or
+// yarn add posthog-node
+
 import PostHog from 'posthog-node'
 
 const posthog = new PostHog(
     'sTMFPsFhdP1Ssg', // project API key 
-    { host: 'https://app.posthog.com' } // You can omit this line if using PostHog Cloud
+    {
+        host: 'https://app.posthog.com', // You can omit this line if using PostHog Cloud
+        personalApiKey: "" // You can find this in your user settings
+    }
 )
 
 // Capture an event
 posthog.capture({ distinctId: "distinct_id", event: "event", properties: { "property1": "value", "property2": "value" }, sendFeatureFlags: true })
 
-console.log(posthog.is_feature_enabled("beta-feature", "distinct_id"))
-console.log(posthog.is_feature_enabled("beta-feature", "distinct_id", { "company": "id:5" }))
+console.log(posthog.isFeatureEnabled("beta-feature", "distinct_id", false))
+console.log(posthog.isFeatureEnabled("beta-feature", "distinct_id", false, { "company": "id:5" }))
 
 // console.log("sleeping")
 // setTimeout(console.log("sleeping"), 5000)
 
-console.log(posthog.is_feature_enabled("beta-feature", "distinct_id"))
+console.log(posthog.isFeatureEnabled("beta-feature", "distinct_id"))
 
 // Alias a previous distinct id with a new one
 
