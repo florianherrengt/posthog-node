@@ -70,6 +70,20 @@ class FeatureFlagsPoller {
     }
 
     async getFeatureVariants(distinctId, groups = {}) {
+        if (!distinctId) {
+            throw new ClientError('Must provide distinct id.')
+        }
+        if (groups) {
+            const groupsIsObj = groups === Object(groups)
+            if (!groupsIsObj) {
+                throw new ClientError(
+                    `Groups must be an object. Got ${typeof groups}`
+                )
+            }
+        } else {
+            groups = {}
+        }
+
         const res = await this._request({ path: 'decide/?v=2', method: 'POST', data: { groups, distinct_id: distinctId } })
         return res.data.featureFlags
     }
