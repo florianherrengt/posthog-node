@@ -5,9 +5,9 @@
 import PostHog from 'posthog-node'
 
 const posthog = new PostHog(
-    'sTMFPsFhdP1Ssg', // project API key 
+    "", // project API key
     {
-        host: 'https://app.posthog.com', // You can omit this line if using PostHog Cloud
+        host: "https://app.posthog.com", // You can omit this line if using PostHog Cloud
         personalApiKey: "" // You can find this in your user settings
     }
 )
@@ -19,7 +19,7 @@ console.log(posthog.isFeatureEnabled("beta-feature", "distinct_id", false))
 console.log(posthog.isFeatureEnabled("beta-feature", "distinct_id", false, { "company": "id:5" }))
 
 // console.log("sleeping")
-// setTimeout(console.log("sleeping"), 5000)
+// sleep 5
 
 console.log(posthog.isFeatureEnabled("beta-feature", "distinct_id"))
 
@@ -47,17 +47,6 @@ posthog.capture({ distinctId: "new_distinct_id", event: "signup", properties: { 
 // this will not change the property (because it was already set)
 posthog.capture({ distinctId: "new_distinct_id", event: "signup", properties: { $set: { "current_browser": "Chrome" } } })
 posthog.capture({ distinctId: "new_distinct_id", event: "signup", properties: { $set: { "current_browser": "Firefox" } } })
-
-
-client.capture({
-    distinctId: 'distinct id',
-    event: 'movie played',
-    properties: {
-        movieId: '123',
-        category: 'romcom'
-    }
-})
-
 
 // On program exit, call shutdown to stop pending pollers and flush any remaining events
 client.shutdown()
