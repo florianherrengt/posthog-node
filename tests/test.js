@@ -393,19 +393,40 @@ test('capture - enqueue a message with groups', (t) => {
     t.deepEqual(client.enqueue.firstCall.args, ['capture', apiMessage, noop])
 })
 
-test('capture - require event and either distinctId or alias', (t) => {
+test('capture - require event and either distinctId or alias', async (t) => {
     const client = createClient()
     stub(client, 'enqueue')
 
-    t.throws(() => client.capture(), { message: 'You must pass a message object.' })
-    t.throws(() => client.capture({}), { message: 'You must pass a "distinctId".' })
-    t.throws(() => client.capture({ distinctId: 'id' }), { message: 'You must pass an "event".' })
+    await t.throwsAsync(() => client.capture(), { message: 'You must pass a message object.' })
+    await t.throwsAsync(() => client.capture({}), { message: 'You must pass a "distinctId".' })
+    await t.throwsAsync(() => client.capture({ distinctId: 'id' }), { message: 'You must pass an "event".' })
     t.notThrows(() => {
         client.capture({
             distinctId: 'id',
             event: 'event',
         })
     })
+})
+
+test('capture - captures feature flags', async (t) => {
+    const client = createClient({ personalApiKey: 'my very secret key' })
+    stub(client, 'enqueue')
+    const message = { distinctId: 'some id', event: 'event', sendFeatureFlags: true }
+    const apiMessage = {
+        distinctId: 'some id',
+        event: 'event',
+        properties: {
+            $lib: 'posthog-node',
+            $lib_version: version,
+            "$feature/multivariate-feature": "variant-1",
+            "$feature/enabled-flag": true,
+            $active_feature_flags: ["multivariate-feature", "enabled-flag"]
+        },
+    }
+    await client.capture(message, noop)
+    t.true(client.enqueue.calledOnce)
+    t.deepEqual(client.enqueue.firstCall.args, ['capture', apiMessage, noop])
+    client.shutdown()
 })
 
 test('alias - enqueue a message', (t) => {

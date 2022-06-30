@@ -128,7 +128,7 @@ class PostHog {
      * @return {PostHog}
      */
 
-    capture(message, callback) {
+    async capture(message, callback) {
         this._validate(message, 'capture')
 
         const properties = Object.assign({}, message.properties, {
@@ -136,11 +136,22 @@ class PostHog {
             $lib_version: version,
         })
 
+        const groups = message['groups']
+
         if ('groups' in message) {
             properties.$groups = message.groups
             delete message.groups
         }
-
+        if (message['sendFeatureFlags']) {
+            const featureVariants = await this.featureFlagsPoller.getFeatureVariants(message['distinctId'], groups)
+            if (featureVariants) {
+                for (const [feature, variant] of Object.entries(featureVariants)) {
+                    properties[`$feature/${feature}`] = variant
+                }
+                properties["$active_feature_flags"] = Object.keys(featureVariants)
+            }
+            delete message.sendFeatureFlags
+        }
         const apiMessage = Object.assign({}, message, { properties })
 
         this.enqueue('capture', apiMessage, callback)

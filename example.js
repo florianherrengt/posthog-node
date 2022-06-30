@@ -6,7 +6,7 @@ const posthog = new PostHog(
 )
 
 // Capture an event
-posthog.capture({ distinct_id: "distinct_id", event: "event", properties: { "property1": "value", "property2": "value" }, send_feature_flags: true })
+posthog.capture({ distinctId: "distinct_id", event: "event", properties: { "property1": "value", "property2": "value" }, sendFeatureFlags: true })
 
 console.log(posthog.is_feature_enabled("beta-feature", "distinct_id"))
 console.log(posthog.is_feature_enabled("beta-feature", "distinct_id", { "company": "id:5" }))
@@ -18,28 +18,28 @@ console.log(posthog.is_feature_enabled("beta-feature", "distinct_id"))
 
 // Alias a previous distinct id with a new one
 
-posthog.alias({ distinct_id: "distinct_id", alias: "new_distinct_id" })
+posthog.alias({ distinctId: "distinct_id", alias: "new_distinct_id" })
 
-posthog.capture({ distinct_id: "new_distinct_id", event: "event2", properties: { property1: "value", property2: "value" } })
+posthog.capture({ distinctId: "new_distinct_id", event: "event2", properties: { property1: "value", property2: "value" } })
 posthog.capture({
-    distinct_id: "new_distinct_id", event: "event-with-groups", properties: { property1: "value", property2: "value" }, groups: { "company": "id:5" }
+    distinctId: "new_distinct_id", event: "event-with-groups", properties: { property1: "value", property2: "value" }, groups: { "company": "id:5" }
 })
 
 // // Add properties to the person
-posthog.identify({ distinct_id: "new_distinct_id", properties: { email: "something@something.com" } })
+posthog.identify({ distinctId: "new_distinct_id", properties: { email: "something@something.com" } })
 
 // Add properties to a group
 posthog.groupIdentify({ groupType: "company", groupKey: "id:5", properties: { "employees": 11 } })
 
 // properties set only once to the person
-posthog.capture({ distinct_id: "new_distinct_id", event: "signup", properties: { $set_once: { "self_serve_signup": true } } })
+posthog.capture({ distinctId: "new_distinct_id", event: "signup", properties: { $set_once: { "self_serve_signup": true } } })
 
 // sleep 3
-posthog.capture({ distinct_id: "new_distinct_id", event: "signup", properties: { $set_once: { "self_serve_signup": false } } })
+posthog.capture({ distinctId: "new_distinct_id", event: "signup", properties: { $set_once: { "self_serve_signup": false } } })
 
 // this will not change the property (because it was already set)
-posthog.capture({ distinct_id: "new_distinct_id", event: "signup", properties: { $set: { "current_browser": "Chrome" } } })
-posthog.capture({ distinct_id: "new_distinct_id", event: "signup", properties: { $set: { "current_browser": "Firefox" } } })
+posthog.capture({ distinctId: "new_distinct_id", event: "signup", properties: { $set: { "current_browser": "Chrome" } } })
+posthog.capture({ distinctId: "new_distinct_id", event: "signup", properties: { $set: { "current_browser": "Firefox" } } })
 
 
 client.capture({
