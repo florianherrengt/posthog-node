@@ -408,7 +408,7 @@ test('capture - require event and either distinctId or alias', async (t) => {
     })
 })
 
-test('capture - captures feature flags', async (t) => {
+test('capture - sends feature flags', async (t) => {
     const client = createClient({ personalApiKey: 'my very secret key' })
     stub(client, 'enqueue')
     const message = { distinctId: 'some id', event: 'event', sendFeatureFlags: true }
