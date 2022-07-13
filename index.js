@@ -150,8 +150,6 @@ class PostHog {
             $lib_version: version,
         })
 
-        const groups = message['groups']
-
         if ('groups' in message) {
             properties.$groups = message.groups
             delete message.groups
