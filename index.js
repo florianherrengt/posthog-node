@@ -96,6 +96,20 @@ class PostHog {
         }
     }
 
+    _sendFeatureFlags(message, properties, callback) {
+        this.featureFlagsPoller.getFeatureVariants(message['distinctId'], message['groups']).then(featureVariants => {
+            if (featureVariants) {
+                for (const [feature, variant] of Object.entries(featureVariants)) {
+                    properties[`$feature/${feature}`] = variant
+                }
+                properties["$active_feature_flags"] = Object.keys(featureVariants)
+            }
+            delete message.sendFeatureFlags
+            const apiMessage = Object.assign({}, message, { properties })
+            this.enqueue('capture', apiMessage, callback)
+        })
+    }
+
     /**
      * Send an identify `message`.
      *
@@ -128,7 +142,7 @@ class PostHog {
      * @return {PostHog}
      */
 
-    async capture(message, callback) {
+    capture(message, callback) {
         this._validate(message, 'capture')
 
         const properties = Object.assign({}, message.properties, {
@@ -142,19 +156,15 @@ class PostHog {
             properties.$groups = message.groups
             delete message.groups
         }
-        if (message['sendFeatureFlags']) {
-            const featureVariants = await this.featureFlagsPoller.getFeatureVariants(message['distinctId'], groups)
-            if (featureVariants) {
-                for (const [feature, variant] of Object.entries(featureVariants)) {
-                    properties[`$feature/${feature}`] = variant
-                }
-                properties["$active_feature_flags"] = Object.keys(featureVariants)
-            }
-            delete message.sendFeatureFlags
-        }
+
         const apiMessage = Object.assign({}, message, { properties })
 
-        this.enqueue('capture', apiMessage, callback)
+        if (message['sendFeatureFlags']) {
+            this._sendFeatureFlags(message, properties, callback)
+        } else {
+            this.enqueue('capture', apiMessage, callback)
+        }
+
         return this
     }
 

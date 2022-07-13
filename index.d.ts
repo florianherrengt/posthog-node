@@ -42,7 +42,7 @@ declare module 'posthog-node' {
          * @param groups OPTIONAL | object of what groups are related to this event, example: { company: 'id:5' }. Can be used to analyze companies instead of users.
          * @param sendFeatureFlags OPTIONAL | Used with experiments
          */
-        capture({ distinctId, event, properties, groups, sendFeatureFlags }: EventMessage): Promise<void>
+        capture({ distinctId, event, properties, groups, sendFeatureFlags }: EventMessage): void
 
         /**
          * @description Identify lets you add metadata on your users so you can more easily identify who they are in PostHog,

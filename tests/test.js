@@ -393,13 +393,13 @@ test('capture - enqueue a message with groups', (t) => {
     t.deepEqual(client.enqueue.firstCall.args, ['capture', apiMessage, noop])
 })
 
-test('capture - require event and either distinctId or alias', async (t) => {
+test('capture - require event and either distinctId or alias', (t) => {
     const client = createClient()
     stub(client, 'enqueue')
 
-    await t.throwsAsync(() => client.capture(), { message: 'You must pass a message object.' })
-    await t.throwsAsync(() => client.capture({}), { message: 'You must pass a "distinctId".' })
-    await t.throwsAsync(() => client.capture({ distinctId: 'id' }), { message: 'You must pass an "event".' })
+    t.throws(() => client.capture(), { message: 'You must pass a message object.' })
+    t.throws(() => client.capture({}), { message: 'You must pass a "distinctId".' })
+    t.throws(() => client.capture({ distinctId: 'id' }), { message: 'You must pass an "event".' })
     t.notThrows(() => {
         client.capture({
             distinctId: 'id',
@@ -423,10 +423,11 @@ test('capture - sends feature flags', async (t) => {
             $active_feature_flags: ["multivariate-feature", "enabled-flag"]
         },
     }
-    await client.capture(message, noop)
+
+    client.capture(message, noop)
+    await delay(100)
     t.true(client.enqueue.calledOnce)
     t.deepEqual(client.enqueue.firstCall.args, ['capture', apiMessage, noop])
-    client.shutdown()
 })
 
 test('alias - enqueue a message', (t) => {
