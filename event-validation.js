@@ -26,6 +26,8 @@ function eventValidation(event, type) {
             return validateGroupIdentifyEvent(event)
         case 'isFeatureEnabled':
             return validateIsFeatureEnabled(event)
+        case 'getFeatureFlag':
+            return validateGetFeatureFlag(event)
         default:
             assert(0, 'Invalid event type: "' + type + '"')
     }
@@ -74,6 +76,18 @@ function validateAliasEvent(event) {
     assert(event.key, 'You must pass a "key".')
     assert(event.distinctId, 'You must pass a "distinctId".')
     assert(type(event.defaultResult) == 'boolean', '"defaultResult" must be a boolean.')
+    if (event.groups) {
+        assert(type(event.groups) == 'object', 'You must pass an object for "groups".')
+    }
+}
+
+/**
+ * Validate a "getFeatureFlag" call
+ */
+
+function validateGetFeatureFlag(event) {
+    assert(event.key, 'You must pass a "key".')
+    assert(event.distinctId, 'You must pass a "distinctId".')
     if (event.groups) {
         assert(type(event.groups) == 'object', 'You must pass an object for "groups".')
     }

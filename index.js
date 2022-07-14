@@ -96,6 +96,20 @@ class PostHog {
         }
     }
 
+    _sendFeatureFlags(message, properties, callback) {
+        this.featureFlagsPoller.getFeatureVariants(message['distinctId'], message['groups']).then(featureVariants => {
+            if (featureVariants) {
+                for (const [feature, variant] of Object.entries(featureVariants)) {
+                    properties[`$feature/${feature}`] = variant
+                }
+                properties["$active_feature_flags"] = Object.keys(featureVariants)
+            }
+            delete message.sendFeatureFlags
+            const apiMessage = Object.assign({}, message, { properties })
+            this.enqueue('capture', apiMessage, callback)
+        })
+    }
+
     /**
      * Send an identify `message`.
      *
@@ -143,7 +157,12 @@ class PostHog {
 
         const apiMessage = Object.assign({}, message, { properties })
 
-        this.enqueue('capture', apiMessage, callback)
+        if (message['sendFeatureFlags']) {
+            this._sendFeatureFlags(message, properties, callback)
+        } else {
+            this.enqueue('capture', apiMessage, callback)
+        }
+
         return this
     }
 
@@ -250,8 +269,14 @@ class PostHog {
     async isFeatureEnabled(key, distinctId, defaultResult = false, groups = {}) {
         this._validate({ key, distinctId, defaultResult, groups }, 'isFeatureEnabled')
         assert(this.personalApiKey, 'You have to specify the option personalApiKey to use feature flags.')
-
         return await this.featureFlagsPoller.isFeatureEnabled(key, distinctId, defaultResult, groups)
+    }
+
+    async getFeatureFlag(key, distinctId, groups = {}) {
+        this._validate({ key, distinctId, groups }, 'getFeatureFlag')
+        const featureFlag = await this.featureFlagsPoller.getFeatureFlag(key, distinctId, groups)
+        this.capture({ distinctId: distinctId, event: "$feature_flag_called", properties: { "$feature_flag": key, "$feature_flag_response": featureFlag } })
+        return featureFlag
     }
 
     async reloadFeatureFlags() {

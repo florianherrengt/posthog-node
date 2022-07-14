@@ -75,7 +75,7 @@ test.before.cb((t) => {
         })
         .post('/decide', (req, res) => {
             return res.status(200).json({
-                featureFlags: ['enabled-flag'],
+                featureFlags: { "multivariate-feature": "variant-1", "enabled-flag": true }
             })
         })
         .listen(port, t.end)
@@ -90,10 +90,10 @@ test.afterEach(() => {
 function callsDecide(expectedData) {
     const config = {
         method: 'POST',
-        url: 'http://localhost:6042/decide/',
+        url: 'http://localhost:6042/decide/?v=2',
         headers: {
             'Content-Type': 'application/json',
-            'user-agent': 'posthog-node/1.2.0',
+            'user-agent': 'posthog-node/1.3.0',
         },
     }
     if (expectedData) {
@@ -408,6 +408,28 @@ test('capture - require event and either distinctId or alias', (t) => {
     })
 })
 
+test('capture - sends feature flags', async (t) => {
+    const client = createClient({ personalApiKey: 'my very secret key' })
+    stub(client, 'enqueue')
+    const message = { distinctId: 'some id', event: 'event', sendFeatureFlags: true }
+    const apiMessage = {
+        distinctId: 'some id',
+        event: 'event',
+        properties: {
+            $lib: 'posthog-node',
+            $lib_version: version,
+            "$feature/multivariate-feature": "variant-1",
+            "$feature/enabled-flag": true,
+            $active_feature_flags: ["multivariate-feature", "enabled-flag"]
+        },
+    }
+
+    client.capture(message, noop)
+    await delay(100)
+    t.true(client.enqueue.calledOnce)
+    t.deepEqual(client.enqueue.firstCall.args, ['capture', apiMessage, noop])
+})
+
 test('alias - enqueue a message', (t) => {
     const client = createClient()
     stub(client, 'enqueue')
@@ -566,6 +588,24 @@ test.serial('feature flags - complex flags', async (t) => {
     t.is(expectedDisabledFlag, false)
     t.is(callsDecide({ groups: {}, distinct_id: 'some id', token: 'key' }), true)
 
+    client.shutdown()
+})
+
+test.serial('feature flags - multivariate', async (t) => {
+    const client = createClient({ personalApiKey: 'my very secret key' })
+    const expectedMultivariateFlag = await client.isFeatureEnabled('multivariate-feature', 'some id')
+    t.is(callsDecide({ groups: {}, distinct_id: 'some id', token: 'key' }), true)
+
+    t.is(expectedMultivariateFlag, true)
+    client.shutdown()
+})
+
+test.serial('feature flags - get feature flag', async (t) => {
+    const client = createClient({ personalApiKey: 'my very secret key' })
+    const expectedMultivariateFlag = await client.getFeatureFlag('multivariate-feature', 'some id')
+    t.is(callsDecide({ groups: {}, distinct_id: 'some id', token: 'key' }), true)
+
+    t.is(expectedMultivariateFlag, 'variant-1')
     client.shutdown()
 })
 

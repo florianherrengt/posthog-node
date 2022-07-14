@@ -61,12 +61,22 @@ class FeatureFlagsPoller {
                 rolloutPercentage: featureFlag.rolloutPercentage,
             })
         } else {
-            const res = await this._request({ path: 'decide', method: 'POST', data: { groups, distinct_id: distinctId } })
-            isFlagEnabledResponse = res.data.featureFlags.indexOf(key) >= 0
+            const featureVariants = await this.getFeatureVariants(distinctId, groups)
+            isFlagEnabledResponse = !!featureVariants[key] || defaultResult
         }
 
         this.featureFlagCalledCallback(key, distinctId, isFlagEnabledResponse)
         return isFlagEnabledResponse
+    }
+
+    async getFeatureVariants(distinctId, groups = {}) {
+        const res = await this._request({ path: 'decide/?v=2', method: 'POST', data: { groups, distinct_id: distinctId } })
+        return res.data.featureFlags
+    }
+
+    async getFeatureFlag(key, distinctId, groups = {}) {
+        const featureVariants = await this.getFeatureVariants(distinctId, groups)
+        return featureVariants[key]
     }
 
     async loadFeatureFlags(forceReload = false) {
@@ -116,15 +126,15 @@ class FeatureFlagsPoller {
     }
 
     /* istanbul ignore next */
-    async _request({ path, method = 'GET', usePersonalApiKey = false, data = {} }) {
-        let url = `${this.host}/${path}/`
+    async _request({ path, method = 'GET', usePersonalApiKey = false, data = {}, }) {
+        let url = `${this.host}/${path}`
         let headers = {
             'Content-Type': 'application/json',
         }
 
         if (usePersonalApiKey) {
             headers = { ...headers, Authorization: `Bearer ${this.personalApiKey}` }
-            url = url + `?token=${this.projectApiKey}`
+            url = url + `/?token=${this.projectApiKey}`
         } else {
             data = { ...data, token: this.projectApiKey }
         }

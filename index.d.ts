@@ -40,8 +40,9 @@ declare module 'posthog-node' {
          * @param event We recommend using [verb] [noun], like movie played or movie updated to easily identify what your events mean later on.
          * @param properties OPTIONAL | which can be a object with any information you'd like to add
          * @param groups OPTIONAL | object of what groups are related to this event, example: { company: 'id:5' }. Can be used to analyze companies instead of users.
+         * @param sendFeatureFlags OPTIONAL | Used with experiments
          */
-        capture({ distinctId, event, properties, groups }: EventMessage): void
+        capture({ distinctId, event, properties, groups, sendFeatureFlags }: EventMessage): void
 
         /**
          * @description Identify lets you add metadata on your users so you can more easily identify who they are in PostHog,
