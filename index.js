@@ -269,7 +269,9 @@ class PostHog {
     async isFeatureEnabled(key, distinctId, defaultResult = false, groups = {}) {
         this._validate({ key, distinctId, defaultResult, groups }, 'isFeatureEnabled')
         assert(this.personalApiKey, 'You have to specify the option personalApiKey to use feature flags.')
-        return await this.featureFlagsPoller.isFeatureEnabled(key, distinctId, defaultResult, groups)
+        const featureEnabled = await this.featureFlagsPoller.isFeatureEnabled(key, distinctId, defaultResult, groups)
+        this.capture({ distinctId: distinctId, event: "$feature_flag_called", properties: { "$feature_flag": key, "$feature_flag_response": featureEnabled } })
+        return featureEnabled
     }
 
     async getFeatureFlag(key, distinctId, groups = {}) {
