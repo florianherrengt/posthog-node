@@ -1,6 +1,6 @@
 # PostHog Node.js Library
 
-> **PLEASE NOTE** From version 2.0.0 onwards, `posthog-node` is now based on our [TypeScript Core](https://github.com/PostHog/posthog-js-lite/tree/master/posthog-node). For development or issues please [go to the new project](https://github.com/PostHog/posthog-js-lite/tree/master/posthog-react-native)
+> **PLEASE NOTE** From version 2.0.0 onwards, `posthog-node` is now based on our [TypeScript Core](https://github.com/PostHog/posthog-js-lite/tree/master/posthog-node). For development or issues please [go to the new project](https://github.com/PostHog/posthog-js-lite/tree/master/posthog-node)
 
 [![npm package](https://img.shields.io/npm/v/posthog-node?style=flat-square)](https://www.npmjs.com/package/posthog-node)
 [![MIT License](https://img.shields.io/badge/License-MIT-red.svg?style=flat-square)](https://opensource.org/licenses/MIT)
