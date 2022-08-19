@@ -29,12 +29,8 @@
         "index.js",
         "index.d.ts",
         "event-validation.js",
-        "cli.js",
         "feature-flags.js"
     ],
-    "bin": {
-        "posthog": "cli.js"
-    },
     "keywords": [
         "posthog",
         "stats",
